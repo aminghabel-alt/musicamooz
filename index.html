@@ -1,4 +1,7 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="supabase-store.js"></script>
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head>
@@ -1940,9 +1943,11 @@ document.addEventListener('click',async e=>{
     try{await DB.collection('placements').doc(d.dataset.del).delete();if(S.id===d.dataset.del)S.id=null;}catch(err){d.textContent='حذف نشد';}}
 });
 async function connect(){
-  const inClaude=!!(window.claude&&window.claude.use);
-  try{DB=inClaude?await window.claude.use('db'):null;}catch(e){DB=null;}
-  if(!DB&&!inClaude&&window.__musicLocalDB)DB=window.__musicLocalDB; // standalone file: browser storage + backup
+  try{DB=await window.__musicSupabaseReady;}catch(e){
+    DB=null;dbMsg='اتصال برقرار نشد؛ تنظیمات Supabase، ورود و عضویت حساب را بررسی کن.';
+    window.__setStoreMode('none');render();renderRecords();
+    if(window.__tracker)window.__tracker.dbReady(null,dbMsg);return;
+  }
   if(window.__setStoreMode)window.__setStoreMode(!DB?'none':DB===window.__musicLocalDB?'local':'shared');
   if(DB===window.__musicLocalDB){const h=$('recHint');if(h)h.textContent='نتیجه‌های ذخیره‌شده در همین مرورگر اینجا می‌آیند؛ برای بردن به دستگاه دیگر «پشتیبان‌گیری» کن.';}
   if(!DB){dbMsg='ذخیرهٔ مشترک در این نما در دسترس نیست (مثلاً بدون ورود به حساب). نتیجه را با «کپی خلاصه» بردار.';render();renderRecords();

@@ -1,0 +1,17 @@
+<!doctype html><html lang="fa" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ورود Musicamooz</title>
+<body><main><h1>ورود به دفتر Musicamooz</h1><form id="login"><label>ایمیل <input id="email" type="email" autocomplete="username" required></label><label>رمز عبور <input id="password" type="password" autocomplete="current-password" required></label><button>ورود</button></form><p id="message" role="status"></p><button id="logout">خروج از حساب</button></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8/dist/umd/supabase.js"></script><script src="config.js"></script><script>
+const cfg=window.MUSICAMOOZ_CONFIG;
+const client=supabase.createClient(cfg.url,cfg.publishableKey);
+document.getElementById('login').onsubmit=async event=>{
+ event.preventDefault();const msg=document.getElementById('message');msg.textContent='در حال ورود…';
+ try {
+ const {error}=await client.auth.signInWithPassword({email:document.getElementById('email').value.trim(),password:document.getElementById('password').value});
+ if(error)throw error;
+ const {data,error:err}=await client.from('music_members').select('user_id').single();
+ if(err||!data)throw Error('membership');
+ location.replace(new URL('index.html',location.href));
+ }catch(e){msg.textContent='ورود انجام نشد؛ اطلاعات ورود یا عضویت تأییدشده را بررسی کن.';}
+};
+document.getElementById('logout').onclick=async()=>{localStorage.removeItem('placement-draft');await client.auth.signOut();document.getElementById('message').textContent='از حساب خارج شدی.';};
+</script></body></html>
